@@ -1,0 +1,753 @@
+Code:
+
+actions\atualizar_livro.php:
+Directory: actions
+
+<?php
+include '../includes/conexao.php';
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    
+    $id = intval($_POST['id']);
+    $titulo = htmlspecialchars($_POST['titulo']);
+    $autor = htmlspecialchars($_POST['autor']);
+    $genero = htmlspecialchars($_POST['genero']);
+    $status = htmlspecialchars($_POST['status']);
+    
+    if (empty($titulo) || empty($id)) {
+        die("Dados inválidos.");
+    }
+
+    // --- LÓGICA DE UPLOAD DA CAPA (ATUALIZAÇÃO) ---
+    // Verifica se um NOVO arquivo foi enviado
+    if (isset($_FILES['capa']) && $_FILES['capa']['error'] == 0) {
+        $uploadDir = '../uploads/';
+        $nomeArquivo = uniqid() . '_' . basename($_FILES['capa']['name']);
+        $caminhoCapa = $uploadDir . $nomeArquivo;
+
+        if (move_uploaded_file($_FILES['capa']['tmp_name'], $caminhoCapa)) {
+            $caminhoCapaDB = 'uploads/' . $nomeArquivo;
+            
+            // Se um novo upload deu certo, atualiza a coluna 'capa'
+            $sql = "UPDATE livros SET titulo = :titulo, autor = :autor, genero = :genero, status = :status, capa = :capa WHERE id = :id";
+            $stmt = $pdo->prepare($sql);
+            $stmt->bindParam(':capa', $caminhoCapaDB);
+        } else {
+            // Se o upload falhar, não atualiza a capa (mantém a antiga)
+            $sql = "UPDATE livros SET titulo = :titulo, autor = :autor, genero = :genero, status = :status WHERE id = :id";
+            $stmt = $pdo->prepare($sql);
+        }
+    } else {
+        // Se nenhum novo arquivo foi enviado, não atualiza a coluna 'capa'
+        $sql = "UPDATE livros SET titulo = :titulo, autor = :autor, genero = :genero, status = :status WHERE id = :id";
+        $stmt = $pdo->prepare($sql);
+    }
+    // --- FIM DA LÓGICA DE UPLOAD ---
+
+    $stmt->bindParam(':titulo', $titulo);
+    $stmt->bindParam(':autor', $autor);
+    $stmt->bindParam(':genero', $genero);
+    $stmt->bindParam(':status', $status);
+    $stmt->bindParam(':id', $id);
+    
+    try {
+        $stmt->execute();
+        header("Location: ../index.php?msg=atualizado");
+        exit();
+    } catch (PDOException $e) {
+        die("Erro ao atualizar o livro: " . $e->getMessage());
+    }
+} else {
+    header("Location: ../index.php");
+    exit();
+}
+?>
+
+actions\excluir_livro.php:
+Directory: actions
+
+<?php
+include '../includes/conexao.php';
+
+// 1. Verificar se o ID foi passado via GET
+if (!isset($_GET['id'])) {
+    die("ID do livro não fornecido.");
+}
+
+$id = intval($_GET['id']); // Segurança
+
+if ($id <= 0) {
+    die("ID inválido.");
+}
+
+try {
+    $sql = "DELETE FROM livros WHERE id = :id";
+    $stmt = $pdo->prepare($sql);
+    $stmt->bindParam(':id', $id);
+    $stmt->execute();
+    // Redireciona para o index com mensagem de sucesso
+    header("Location: ../index.php?msg=excluido");
+    exit();
+} catch (PDOException $e) {
+    die("Erro ao excluir o livro: " . $e->getMessage());
+}
+?>
+
+actions\salvar_livro.php:
+Directory: actions
+
+<?php
+include '../includes/conexao.php';
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    
+    $titulo = htmlspecialchars($_POST['titulo']);
+    $autor = htmlspecialchars($_POST['autor']);
+    $genero = htmlspecialchars($_POST['genero']);
+    $status = htmlspecialchars($_POST['status']);
+    $caminhoCapa = null; // Inicia como nulo
+
+    if (empty($titulo)) {
+        die("O campo título é obrigatório.");
+    }
+
+    // --- LÓGICA DE UPLOAD DA CAPA ---
+    if (isset($_FILES['capa']) && $_FILES['capa']['error'] == 0) {
+        $uploadDir = '../uploads/'; // Pasta de destino
+        
+        // Gera um nome de arquivo único para evitar sobreposição
+        $nomeArquivo = uniqid() . '_' . basename($_FILES['capa']['name']);
+        $caminhoCapa = $uploadDir . $nomeArquivo;
+        
+        // Move o arquivo temporário para o destino final
+        if (move_uploaded_file($_FILES['capa']['tmp_name'], $caminhoCapa)) {
+            // Se o upload foi bem-sucedido, o $caminhoCapa está pronto
+            // Nota: O caminho salvo no BD será "uploads/arquivo.jpg"
+            $caminhoCapa = 'uploads/' . $nomeArquivo;
+        } else {
+            // Se falhar, $caminhoCapa continua nulo
+            $caminhoCapa = null; 
+        }
+    }
+    // --- FIM DA LÓGICA DE UPLOAD ---
+
+    // SQL agora inclui a coluna 'capa'
+    $sql = "INSERT INTO livros (titulo, autor, genero, status, capa) VALUES (:titulo, :autor, :genero, :status, :capa)";
+    $stmt = $pdo->prepare($sql);
+
+    $stmt->bindParam(':titulo', $titulo);
+    $stmt->bindParam(':autor', $autor);
+    $stmt->bindParam(':genero', $genero);
+    $stmt->bindParam(':status', $status);
+    $stmt->bindParam(':capa', $caminhoCapa); // Adiciona o caminho da capa
+    
+    try {
+        $stmt->execute();
+        header("Location: ../index.php?msg=sucesso");
+        exit();
+    } catch (PDOException $e) {
+        die("Erro ao salvar o livro: " . $e->getMessage());
+    }
+} else {
+    header("Location: ../form_cadastro.php");
+    exit();
+}
+?>
+
+css\style.css:
+Directory: css
+
+/* --- Reset Básico --- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+    background-color: #f6f8fa;
+    color: #24292e;
+    line-height: 1.5;
+}
+
+/* --- Layout Principal --- */
+.container {
+    max-width: 980px;
+    margin: 20px auto;
+    padding: 24px;
+    background-color: #ffffff;
+    border: 1px solid #d0d7de;
+    border-radius: 6px;
+}
+
+main.container {
+    padding-top: 30px;
+}
+
+h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    padding-bottom: .3em;
+    border-bottom: 1px solid #d8dee4;
+    margin-bottom: 24px;
+}
+
+/* --- Header e Navegação --- */
+header {
+    background-color: #24292e;
+    color: #ffffff;
+    padding: 16px 0;
+    margin-bottom: 24px;
+}
+
+header nav.container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: transparent;
+    border: none;
+    padding: 0;
+}
+
+header h1 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+header h1 a {
+    color: #ffffff;
+    text-decoration: none;
+}
+
+header nav ul {
+    list-style: none;
+    display: flex;
+    gap: 16px;
+}
+
+header nav ul a {
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+header nav ul a:hover {
+    color: #c9d1d9;
+}
+
+/* --- Tabelas --- */
+.table-container {
+    border: 1px solid #d0d7de;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table th, table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #d8dee4;
+    text-align: left;
+}
+
+table th {
+    background-color: #f6f8fa;
+    font-weight: 600;
+}
+
+table tr:nth-child(even) {
+    background-color: #fcfcfc;
+}
+
+table tr:last-child td {
+    border-bottom: 0;
+}
+
+/* --- Botões --- */
+.btn {
+    display: inline-block;
+    padding: 8px 16px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    line-height: 20px;
+    text-decoration: none;
+    white-space: nowrap;
+    vertical-align: middle;
+    cursor: pointer;
+    user-select: none;
+    border: 1px solid;
+    border-radius: 6px;
+    appearance: none;
+}
+.btn:hover {
+    filter: brightness(95%);
+}
+
+.btn-primary {
+    color: #ffffff;
+    background-color: #0969da;
+    border-color: #0969da;
+}
+
+.btn-success {
+    color: #ffffff;
+    background-color: #1a7f37;
+    border-color: #1a7f37;
+}
+
+.btn-danger {
+    color: #ffffff;
+    background-color: #d73a49;
+    border-color: #d73a49;
+}
+
+.btn-small {
+    padding: 5px 12px;
+    font-size: 0.8rem;
+}
+
+td.acoes {
+    display: flex;
+    gap: 8px;
+}
+
+/* --- Formulários --- */
+form .form-group {
+    margin-bottom: 16px;
+}
+
+form label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+form input[type="text"],
+form select {
+    width: 100%;
+    padding: 8px 12px;
+    font-size: 0.875rem;
+    line-height: 20px;
+    border: 1px solid #d0d7de;
+    border-radius: 6px;
+    box-shadow: inset 0 1px 0 rgba(208,215,222,0.2);
+}
+form input[type="text"]:focus,
+form select:focus {
+    outline: none;
+    border-color: #0969da;
+    box-shadow: 0 0 0 3px rgba(9, 105, 218, 0.3);
+}
+
+/* --- Alertas / Mensagens --- */
+.alert {
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    border: 1px solid;
+    border-radius: 6px;
+}
+
+.alert-success {
+    color: #1a7f37;
+    background-color: #dafbe1;
+    border-color: #1a7f37;
+}
+
+.alert-danger {
+    color: #d73a49;
+    background-color: #ffebe9;
+    border-color: #d73a49;
+}
+
+/* --- Footer --- */
+footer {
+    text-align: center;
+    margin-top: 30px;
+    padding-top: 24px;
+    border-top: 1px solid #d8dee4;
+    color: #57606a;
+    font-size: 0.8rem;
+}
+
+/* --- Estilos da Capa e Placeholder --- */
+
+/* Contêiner da célula da capa */
+td.capa-container {
+    width: 100px;
+    padding: 8px;
+    vertical-align: top;
+}
+
+/* A imagem da capa real */
+.capa-img {
+    width: 100%;
+    max-width: 80px;
+    height: auto;
+    border: 1px solid #d0d7de;
+    border-radius: 4px;
+}
+
+/* O placeholder (quando não há imagem) */
+.capa-placeholder {
+    width: 80px;  /* Largura fixa */
+    height: 100px; /* Altura fixa */
+    background-color: #f6f8fa; /* Cor de fundo (estilo GitHub) */
+    border: 1px solid #d0d7de;
+    border-radius: 4px;
+    padding: 8px;
+    
+    /* Para alinhar o texto */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    
+    /* Para evitar que o texto quebre */
+    overflow: hidden; 
+}
+
+/* Título no placeholder */
+.placeholder-titulo {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #24292e;
+    
+    /* Evita que o título fique muito grande */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Autor no placeholder */
+.placeholder-autor {
+    font-size: 0.7rem;
+    color: #57606a;
+    
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Ajuste no formulário de edição para mostrar a capa atual */
+form img {
+    max-width: 100px;
+    border-radius: 4px;
+    border: 1px solid #d0d7de;
+}
+
+/* Ajuste no input de arquivo */
+form input[type="file"] {
+    padding: 4px;
+    font-size: 0.875rem;
+    border: 1px solid #d0d7de;
+    border-radius: 6px;
+    box-shadow: inset 0 1px 0 rgba(208,215,222,0.2);
+    width: 100%;
+}
+
+db.sql:
+Directory: .
+
+-- Cria o banco de dados (se não existir)
+CREATE DATABASE IF NOT EXISTS biblioteca_db;
+
+-- Usa o banco de dados
+USE biblioteca_db;
+
+-- Cria a tabela 'livros'
+CREATE TABLE IF NOT EXISTS livros (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    titulo VARCHAR(255) NOT NULL,
+    autor VARCHAR(255),
+    genero VARCHAR(100),
+    status ENUM('Lido', 'Lendo', 'Quero Ler') DEFAULT 'Quero Ler',
+    data_cadastro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+form_cadastro.php:
+Directory: .
+
+<?php include 'includes/header.php'; ?>
+
+<h2>Adicionar Novo Livro</h2>
+
+<form action="actions/salvar_livro.php" method="POST" id="form-livro" enctype="multipart/form-data">
+    <div class="form-group">
+        <label for="titulo">Título:</label>
+        <input type="text" id="titulo" name="titulo" required>
+    </div>
+    <div class="form-group">
+        <label for="autor">Autor:</label>
+        <input type="text" id="autor" name="autor">
+    </div>
+    <div class="form-group">
+        <label for="genero">Gênero:</label>
+        <input type="text" id="genero" name="genero">
+    </div>
+    <div class="form-group">
+        <label for="status">Status:</label>
+        <select id="status" name="status">
+            <option value="Quero Ler" selected>Quero Ler</option>
+            <option value="Lendo">Lendo</option>
+            <option value="Lido">Lido</option>
+        </select>
+    </div>
+    
+    <div class="form-group">
+        <label for="capa">Capa do Livro (Opcional):</label>
+        <input type="file" id="capa" name="capa">
+    </div>
+
+    <button type="submit" class="btn btn-success">Salvar Livro</button>
+</form>
+
+<?php include 'includes/footer.php'; ?>
+
+form_editar.php:
+Directory: .
+
+<?php
+// ... (código PHP de busca do livro - sem alteração)
+include 'includes/header.php';
+include 'includes/conexao.php';
+
+// 1. Verificar se o ID foi passado
+if (!isset($_GET['id'])) {
+    die("ID do livro não fornecido.");
+}
+
+$id = intval($_GET['id']); 
+
+// 2. Buscar o livro no banco
+try {
+    $sql = "SELECT * FROM livros WHERE id = :id";
+    $stmt = $pdo->prepare($sql);
+    $stmt->bindParam(':id', $id);
+    $stmt->execute();
+    
+    $livro = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$livro) {
+        die("Livro não encontrado.");
+    }
+} catch (PDOException $e) {
+    die("Erro ao buscar o livro: " . $e->getMessage());
+}
+?>
+
+<h2>Editar Livro</h2>
+
+<form action="actions/atualizar_livro.php" method="POST" id="form-livro" enctype="multipart/form-data">
+    
+    <input type="hidden" name="id" value="<?php echo $livro['id']; ?>">
+    
+    <div class="form-group">
+        <label for="titulo">Título:</label>
+        <input type="text" id="titulo" name="titulo" value="<?php echo htmlspecialchars($livro['titulo']); ?>" required>
+    </div>
+    <div class="form-group">
+        <label for="autor">Autor:</label>
+        <input type="text" id="autor" name="autor" value="<?php echo htmlspecialchars($livro['autor']); ?>">
+    </div>
+    <div class="form-group">
+        <label for="genero">Gênero:</label>
+        <input type="text" id="genero" name="genero" value="<?php echo htmlspecialchars($livro['genero']); ?>">
+    </div>
+    <div class="form-group">
+        <label for="status">Status:</label>
+        <select id="status" name="status">
+            <option value="Quero Ler" <?php echo ($livro['status'] == 'Quero Ler') ? 'selected' : ''; ?>>Quero Ler</option>
+            <option value="Lendo" <?php echo ($livro['status'] == 'Lendo') ? 'selected' : ''; ?>>Lendo</option>
+            <option value="Lido" <?php echo ($livro['status'] == 'Lido') ? 'selected' : ''; ?>>Lido</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="capa">Nova Capa (Opcional, deixe em branco para manter a atual):</label>
+        <input type="file" id="capa" name="capa">
+        <?php if (!empty($livro['capa'])): ?>
+            <p style="margin-top: 10px;">Capa Atual:</p>
+            <img src="<?php echo htmlspecialchars($livro['capa']); ?>" alt="Capa" width="100">
+        <?php endif; ?>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Atualizar Livro</button>
+</form>
+
+<?php include 'includes/footer.php'; ?>
+
+includes\conexao.php:
+Directory: includes
+
+<?php
+$host = 'localhost';
+$db   = 'library_db';
+$user = 'root'; // Usuário padrão do XAMPP/WAMP
+$pass = '';     // Senha padrão do XAMPP/WAMP
+
+try {
+    $pdo = new PDO("mysql:host=$host;dbname=$db;charset=utf8", $user, $pass);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    die("Erro ao conectar ao banco de dados: " . $e->getMessage());
+}
+?>
+
+includes\footer.php:
+Directory: includes
+
+</main>
+    <footer>
+        <p>&copy; 2025 - Projeto de PHP</p> 
+    </footer>
+    <script src="js/main.js"></script>
+</body>
+</html>
+
+includes\header.php:
+Directory: includes
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biblioteca Pessoal</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <nav class="container">
+            <h1><a href="index.php">📚 Minha Biblioteca</a></h1>
+            <ul>
+                <li><a href="index.php">Meus Livros</a></li>
+                    <li><a href="form_cadastro.php">Adicionar Livro</a></li> 
+            </ul>
+        </nav>
+    </header>
+    <main class="container">
+
+index.php:
+Directory: .
+
+<?php
+include 'includes/header.php';
+include 'includes/conexao.php';
+
+// SQL para selecionar todos os livros (agora pega a capa também)
+$sql = "SELECT * FROM livros ORDER BY titulo";
+$stmt = $pdo->query($sql);
+?>
+
+<h2>Meus Livros</h2>
+
+<?php
+// Mensagem de sucesso (sem alteração)
+if (isset($_GET['msg'])) {
+    $msg = $_GET['msg'];
+    if ($msg == 'sucesso') {
+        echo "<div class='alert alert-success'>Livro salvo com sucesso!</div>";
+    } else if ($msg == 'atualizado') {
+        echo "<div class='alert alert-success'>Livro atualizado com sucesso!</div>";
+    } else if ($msg == 'excluido') {
+        echo "<div class='alert alert-danger'>Livro excluído com sucesso.</div>";
+    }
+}
+?>
+
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>Capa</th> 
+                <th>Título</th>
+                <th>Autor</th>
+                <th>Gênero</th>
+                <th>Status</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php
+            if ($stmt->rowCount() > 0) {
+                while ($livro = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                    echo "<tr>";
+
+                    // --- LÓGICA DE EXIBIÇÃO DA CAPA (PLACEHOLDER) ---
+                    echo "<td class='capa-container'>";
+                    if (!empty($livro['capa'])) {
+                        // Se tem capa, mostra a imagem
+                        echo "<img src='" . htmlspecialchars($livro['capa']) . "' alt='Capa de " . htmlspecialchars($livro['titulo']) . "' class='capa-img'>";
+                    } else {
+                        // Se não tem capa, mostra o placeholder
+                        echo "<div class='capa-placeholder'>";
+                        echo "<span class='placeholder-titulo'>" . htmlspecialchars($livro['titulo']) . "</span>";
+                        echo "<span class='placeholder-autor'>" . htmlspecialchars($livro['autor']) . "</span>";
+                        echo "</div>";
+                    }
+                    echo "</td>";
+                    // --- FIM DA LÓGICA DA CAPA ---
+
+                    echo "<td>" . htmlspecialchars($livro['titulo']) . "</td>";
+                    echo "<td>" . htmlspecialchars($livro['autor']) . "</td>";
+                    echo "<td>" . htmlspecialchars($livro['genero']) . "</td>";
+                    echo "<td>" . htmlspecialchars($livro['status']) . "</td>";
+                    echo "<td class='acoes'>";
+                    echo "<a href='form_editar.php?id=" . $livro['id'] . "' class='btn btn-small btn-primary'>Editar</a>";
+                    echo "<a href='actions/excluir_livro.php?id=" . $livro['id'] . "' class='btn btn-small btn-danger btn-excluir'>Excluir</a>";
+                    echo "</td>";
+                    echo "</tr>";
+                }
+            } else {
+                // Colspan agora é 6 (por causa da nova coluna de capa)
+                echo "<tr><td colspan='6'>Nenhum livro cadastrado.</td></tr>";
+            }
+            ?>
+        </tbody>
+    </table>
+</div>
+
+<?php include 'includes/footer.php'; ?>
+
+js\main.js:
+Directory: js
+
+// Espera o DOM carregar para executar o script
+document.addEventListener("DOMContentLoaded", function() {
+
+    // --- 1. Validação do Formulário ---
+    const form = document.getElementById("form-livro");
+    
+    if (form) {
+        form.addEventListener("submit", function(event) {
+            const tituloInput = document.getElementById("titulo");
+            
+            // trim() remove espaços em branco do início e fim
+            if (tituloInput.value.trim() === "") { [cite: 62]
+                alert("O campo 'Título' é obrigatório.");
+                event.preventDefault(); // Impede o envio do formulário
+                tituloInput.focus(); // Foca no campo
+            }
+        });
+    }
+
+    // --- 2. Confirmação de Exclusão --- [cite: 63]
+    const linksExcluir = document.querySelectorAll(".btn-excluir");
+    
+    linksExcluir.forEach(function(link) { [cite: 66]
+        link.addEventListener("click", function(event) {
+            // Pergunta ao usuário se ele tem certeza
+            const confirmou = confirm("Tem certeza que deseja excluir este livro?");
+            
+            if (!confirmou) { [cite: 64]
+                event.preventDefault(); // Cancela a ação (não segue o link) [cite: 65]
+            }
+        });
+    });
+
+});
+
