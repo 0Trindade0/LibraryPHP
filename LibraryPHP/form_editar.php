@@ -1,24 +1,28 @@
 <?php
-// ... (código PHP de busca do livro - sem alteração)
+// Inclui os templates
 include 'includes/header.php';
 include 'includes/conexao.php';
 
-// 1. Verificar se o ID foi passado
+// 1. VERIFICAÇÃO DO ID NA URL
+// Pega o 'id' que veio da URL (ex: form_editar.php?id=5)
 if (!isset($_GET['id'])) {
     die("ID do livro não fornecido.");
 }
-
+// Limpa o ID para garantir que é um número
 $id = intval($_GET['id']); 
 
-// 2. Buscar o livro no banco
+// 2. BUSCA OS DADOS ATUAIS DO LIVRO
+// Faz um SELECT para buscar o livro com o ID recebido
 try {
     $sql = "SELECT * FROM livros WHERE id = :id";
     $stmt = $pdo->prepare($sql);
     $stmt->bindParam(':id', $id);
     $stmt->execute();
     
+    // Pega os dados do livro como um array associativo
     $livro = $stmt->fetch(PDO::FETCH_ASSOC);
 
+    // Se $livro for falso (não encontrou), para o script
     if (!$livro) {
         die("Livro não encontrado.");
     }
@@ -45,6 +49,7 @@ try {
         <label for="genero">Gênero:</label>
         <input type="text" id="genero" name="genero" value="<?php echo htmlspecialchars($livro['genero']); ?>">
     </div>
+    
     <div class="form-group">
         <label for="status">Status:</label>
         <select id="status" name="status">
@@ -57,6 +62,7 @@ try {
     <div class="form-group">
         <label for="capa">Nova Capa (Opcional, deixe em branco para manter a atual):</label>
         <input type="file" id="capa" name="capa">
+        
         <?php if (!empty($livro['capa'])): ?>
             <p style="margin-top: 10px;">Capa Atual:</p>
             <img src="<?php echo htmlspecialchars($livro['capa']); ?>" alt="Capa" width="100">

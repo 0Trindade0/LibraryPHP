@@ -237,37 +237,6 @@ header nav ul a:hover {
     color: #c9d1d9;
 }
 
-/* --- Tabelas --- */
-.table-container {
-    border: 1px solid #d0d7de;
-    border-radius: 6px;
-    overflow: hidden;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-table th, table td {
-    padding: 12px 16px;
-    border-bottom: 1px solid #d8dee4;
-    text-align: left;
-}
-
-table th {
-    background-color: #f6f8fa;
-    font-weight: 600;
-}
-
-table tr:nth-child(even) {
-    background-color: #fcfcfc;
-}
-
-table tr:last-child td {
-    border-bottom: 0;
-}
-
 /* --- Botões --- */
 .btn {
     display: inline-block;
@@ -311,11 +280,6 @@ table tr:last-child td {
     font-size: 0.8rem;
 }
 
-td.acoes {
-    display: flex;
-    gap: 8px;
-}
-
 /* --- Formulários --- */
 form .form-group {
     margin-bottom: 16px;
@@ -344,6 +308,24 @@ form select:focus {
     box-shadow: 0 0 0 3px rgba(9, 105, 218, 0.3);
 }
 
+/* Ajuste no formulário de edição para mostrar a capa atual */
+form img {
+    max-width: 100px;
+    border-radius: 4px;
+    border: 1px solid #d0d7de;
+}
+
+/* Ajuste no input de arquivo */
+form input[type="file"] {
+    padding: 4px;
+    font-size: 0.875rem;
+    border: 1px solid #d0d7de;
+    border-radius: 6px;
+    box-shadow: inset 0 1px 0 rgba(208,215,222,0.2);
+    width: 100%;
+}
+
+
 /* --- Alertas / Mensagens --- */
 .alert {
     padding: 12px 16px;
@@ -364,6 +346,129 @@ form select:focus {
     border-color: #d73a49;
 }
 
+/* --- Novo Layout de Lista de Livros (Cards) --- */
+
+.book-item {
+    display: flex; 
+    align-items: flex-start; 
+    padding: 24px 0;
+    border-bottom: 1px solid #d8dee4; /* Linha divisória */
+}
+
+.book-item:first-child {
+    padding-top: 0;
+}
+
+.book-item:last-child {
+    border-bottom: none;
+}
+
+/* Coluna 1: Contêiner da Capa */
+.book-cover-container {
+    width: 120px; 
+    flex-shrink: 0; 
+    margin-right: 24px;
+}
+
+/* A imagem da capa real */
+.capa-img {
+    width: 100%; 
+    height: auto;
+    border: 1px solid #d0d7de;
+    border-radius: 4px;
+}
+
+/* O placeholder (quando não há imagem) */
+.capa-placeholder {
+    width: 100%; 
+    height: 160px; 
+    background-color: #f6f8fa;
+    border: 1px solid #d0d7de;
+    border-radius: 4px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    overflow: hidden;
+}
+
+.placeholder-titulo {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #24292e;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.placeholder-autor {
+    font-size: 0.8rem;
+    color: #57606a;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Coluna 2: Contêiner de Informações */
+.book-info-container {
+    flex-grow: 1; 
+    display: flex;
+    flex-direction: column; 
+    min-height: 160px; 
+}
+
+.book-info-header {
+    /* Agrupa título e autor */
+}
+
+.book-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.book-title a {
+    text-decoration: none;
+    color: #0969da; 
+}
+.book-title a:hover {
+    text-decoration: underline;
+}
+
+.book-author {
+    font-size: 1rem;
+    color: #57606a;
+    margin-bottom: 16px;
+}
+
+.book-footer {
+    margin-top: auto; /* Empurra o rodapé para o fundo */
+    padding-top: 16px;
+    display: flex;
+    justify-content: space-between; 
+    align-items: center;
+    gap: 16px;
+}
+
+.book-meta {
+    font-size: 0.85rem;
+    color: #57606a;
+    display: flex;
+    flex-wrap: wrap; 
+    gap: 16px;
+}
+
+.book-meta span {
+    white-space: nowrap;
+}
+
+.book-actions {
+    display: flex;
+    gap: 8px; /* Espaço entre os botões */
+    flex-shrink: 0; 
+}
+
 /* --- Footer --- */
 footer {
     text-align: center;
@@ -374,98 +479,33 @@ footer {
     font-size: 0.8rem;
 }
 
-/* --- Estilos da Capa e Placeholder --- */
-
-/* Contêiner da célula da capa */
-td.capa-container {
-    width: 100px;
-    padding: 8px;
-    vertical-align: top;
-}
-
-/* A imagem da capa real */
-.capa-img {
-    width: 100%;
-    max-width: 80px;
-    height: auto;
-    border: 1px solid #d0d7de;
-    border-radius: 4px;
-}
-
-/* O placeholder (quando não há imagem) */
-.capa-placeholder {
-    width: 80px;  /* Largura fixa */
-    height: 100px; /* Altura fixa */
-    background-color: #f6f8fa; /* Cor de fundo (estilo GitHub) */
-    border: 1px solid #d0d7de;
-    border-radius: 4px;
-    padding: 8px;
-    
-    /* Para alinhar o texto */
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    text-align: center;
-    
-    /* Para evitar que o texto quebre */
-    overflow: hidden; 
-}
-
-/* Título no placeholder */
-.placeholder-titulo {
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: #24292e;
-    
-    /* Evita que o título fique muito grande */
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-/* Autor no placeholder */
-.placeholder-autor {
-    font-size: 0.7rem;
-    color: #57606a;
-    
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-/* Ajuste no formulário de edição para mostrar a capa atual */
-form img {
-    max-width: 100px;
-    border-radius: 4px;
-    border: 1px solid #d0d7de;
-}
-
-/* Ajuste no input de arquivo */
-form input[type="file"] {
-    padding: 4px;
-    font-size: 0.875rem;
-    border: 1px solid #d0d7de;
-    border-radius: 6px;
-    box-shadow: inset 0 1px 0 rgba(208,215,222,0.2);
-    width: 100%;
-}
-
 db.sql:
 Directory: .
 
--- Cria o banco de dados (se não existir)
+[cite_start]-- [cite: 70] Cria o banco de dados (se não existir)
 CREATE DATABASE IF NOT EXISTS biblioteca_db;
 
--- Usa o banco de dados
+[cite_start]-- [cite: 71] Seleciona o banco de dados recém-criado (ou existente)
+-- para que todos os comandos seguintes sejam executados dentro dele.
 USE biblioteca_db;
 
--- Cria a tabela 'livros'
+-- Cria a tabela principal 'livros'
 CREATE TABLE IF NOT EXISTS livros (
+    -- ID com auto-incremento: O banco de dados cuida de gerar um número único
     id INT AUTO_INCREMENT PRIMARY KEY,
-    titulo VARCHAR(255) NOT NULL,
+    titulo VARCHAR(255) NOT NULL, -- NOT NULL significa que este campo é obrigatório
     autor VARCHAR(255),
     genero VARCHAR(100),
+    
+    -- ENUM: Um tipo especial que só permite os valores da lista.
+    -- Ótimo para campos como 'status'.
     status ENUM('Lido', 'Lendo', 'Quero Ler') DEFAULT 'Quero Ler',
+    
+    -- Coluna para a capa (adicionada na sua adaptação)
+    -- Pode ser NULL (nula) se o usuário não enviar uma capa.
+    capa VARCHAR(255) NULL DEFAULT NULL, 
+
+    -- TIMESTAMP: Grava a data e hora exata do cadastro
     data_cadastro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -585,13 +625,24 @@ includes\conexao.php:
 Directory: includes
 
 <?php
+// --- Configurações do Banco de Dados ---
+// Mude estas variáveis se o seu ambiente for diferente.
 $host = 'localhost';
-$db   = 'library_db';
+$db   = 'library_db';// O nome do seu banco de dados
 $user = 'root'; // Usuário padrão do XAMPP/WAMP
 $pass = '';     // Senha padrão do XAMPP/WAMP
 
+// --- Bloco Try/Catch para Conexão ---
+// Usar try/catch é uma boa prática. Se a conexão falhar,
+// o 'catch' será executado, evitando que o erro quebre o site.
 try {
+    // A linha principal da conexão.
+    // PDO (PHP Data Objects) é a forma moderna e segura de conectar com bancos.
+    // "charset=utf8" garante que caracteres como "ç" e "ã" funcionem.
     $pdo = new PDO("mysql:host=$host;dbname=$db;charset=utf8", $user, $pass);
+
+    // Configura o PDO para relatar erros de forma mais clara (lançando exceções).
+    // Isso ajuda muito na hora de depurar (descobrir erros).
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
     die("Erro ao conectar ao banco de dados: " . $e->getMessage());
@@ -601,10 +652,10 @@ try {
 includes\footer.php:
 Directory: includes
 
-</main>
-    <footer>
+</main> <footer>
         <p>&copy; 2025 - Projeto de PHP</p> 
     </footer>
+    
     <script src="js/main.js"></script>
 </body>
 </html>
@@ -621,13 +672,16 @@ Directory: includes
 </head>
 <body>
     <header>
-        <nav class="container">
-            <h1><a href="index.php">📚 Minha Biblioteca</a></h1>
-            <ul>
-                <li><a href="index.php">Meus Livros</a></li>
-                    <li><a href="form_cadastro.php">Adicionar Livro</a></li> 
-            </ul>
-        </nav>
+        <header>
+    <nav class="container">
+        <h1><a href="index.php">📚 Minha Biblioteca</a></h1>
+        <ul>
+            <li><a href="index.php">Meus Livros</a></li>
+            <li><a href="form_cadastro.php">Adicionar Livro</a></li>
+            
+        </ul>
+    </nav>
+</header>
     </header>
     <main class="container">
 
@@ -638,7 +692,7 @@ Directory: .
 include 'includes/header.php';
 include 'includes/conexao.php';
 
-// SQL para selecionar todos os livros (agora pega a capa também)
+// SQL para selecionar todos os livros (sem alteração) [cite: 92, 93]
 $sql = "SELECT * FROM livros ORDER BY titulo";
 $stmt = $pdo->query($sql);
 ?>
@@ -646,7 +700,7 @@ $stmt = $pdo->query($sql);
 <h2>Meus Livros</h2>
 
 <?php
-// Mensagem de sucesso (sem alteração)
+// Bloco de Alerta (sem alteração) [cite: 94-97]
 if (isset($_GET['msg'])) {
     $msg = $_GET['msg'];
     if ($msg == 'sucesso') {
@@ -659,59 +713,48 @@ if (isset($_GET['msg'])) {
 }
 ?>
 
-<div class="table-container">
-    <table>
-        <thead>
-            <tr>
-                <th>Capa</th> 
-                <th>Título</th>
-                <th>Autor</th>
-                <th>Gênero</th>
-                <th>Status</th>
-                <th>Ações</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php
-            if ($stmt->rowCount() > 0) {
-                while ($livro = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                    echo "<tr>";
+<div class="book-list">
+    <?php
+    if ($stmt->rowCount() > 0) {
+        // O loop 'while' continua igual
+        while ($livro = $stmt->fetch(PDO::FETCH_ASSOC)) {
+    ?>
+        <article class="book-item">
+            
+            <div class="book-cover-container">
+                <?php if (!empty($livro['capa'])): ?>
+                    <img src="<?php echo htmlspecialchars($livro['capa']); ?>" alt="Capa de <?php echo htmlspecialchars($livro['titulo']); ?>" class="capa-img">
+                <?php else: //[cite: 103]?>
+                    <div class="capa-placeholder">
+                        <span class="placeholder-titulo"><?php echo htmlspecialchars($livro['titulo']); ?></span> <span class="placeholder-autor"><?php echo htmlspecialchars($livro['autor']); ?></span>
+                    </div>
+                <?php endif; ?>
+            </div>
 
-                    // --- LÓGICA DE EXIBIÇÃO DA CAPA (PLACEHOLDER) ---
-                    echo "<td class='capa-container'>";
-                    if (!empty($livro['capa'])) {
-                        // Se tem capa, mostra a imagem
-                        echo "<img src='" . htmlspecialchars($livro['capa']) . "' alt='Capa de " . htmlspecialchars($livro['titulo']) . "' class='capa-img'>";
-                    } else {
-                        // Se não tem capa, mostra o placeholder
-                        echo "<div class='capa-placeholder'>";
-                        echo "<span class='placeholder-titulo'>" . htmlspecialchars($livro['titulo']) . "</span>";
-                        echo "<span class='placeholder-autor'>" . htmlspecialchars($livro['autor']) . "</span>";
-                        echo "</div>";
-                    }
-                    echo "</td>";
-                    // --- FIM DA LÓGICA DA CAPA ---
+            <div class="book-info-container">
+                <div class="book-info-header">
+                    <h3 class="book-title"><?php echo htmlspecialchars($livro['titulo']); ?></h3> <p class="book-author"><?php echo htmlspecialchars($livro['autor']); ?></p>
+                </div>
 
-                    echo "<td>" . htmlspecialchars($livro['titulo']) . "</td>";
-                    echo "<td>" . htmlspecialchars($livro['autor']) . "</td>";
-                    echo "<td>" . htmlspecialchars($livro['genero']) . "</td>";
-                    echo "<td>" . htmlspecialchars($livro['status']) . "</td>";
-                    echo "<td class='acoes'>";
-                    echo "<a href='form_editar.php?id=" . $livro['id'] . "' class='btn btn-small btn-primary'>Editar</a>";
-                    echo "<a href='actions/excluir_livro.php?id=" . $livro['id'] . "' class='btn btn-small btn-danger btn-excluir'>Excluir</a>";
-                    echo "</td>";
-                    echo "</tr>";
-                }
-            } else {
-                // Colspan agora é 6 (por causa da nova coluna de capa)
-                echo "<tr><td colspan='6'>Nenhum livro cadastrado.</td></tr>";
-            }
-            ?>
-        </tbody>
-    </table>
-</div>
+                <div class="book-footer">
+                    <div class="book-meta">
+                        <span><strong>Gênero:</strong> <?php echo htmlspecialchars($livro['genero']); ?></span>
+                        <span><strong>Status:</strong> <?php echo htmlspecialchars($livro['status']); ?></span> </div>
+                    <div class="book-actions">
+                        <a href="form_editar.php?id=<?php echo $livro['id']; ?>" class="btn btn-small btn-primary">Editar</a>
+                        <a href="actions/excluir_livro.php?id=<?php echo $livro['id']; ?>" class="btn btn-small btn-danger btn-excluir">Excluir</a> </div>
+                </div>
+            </div>
+        </article>
 
-<?php include 'includes/footer.php'; ?>
+    <?php
+        } // Fim do loop while
+    } else {
+        // Se não houver livros, mostramos um <p> simples
+        echo "<p>Nenhum livro cadastrado.</p>";
+    }
+    ?>
+</div> <?php include 'includes/footer.php'; //[cite: 111]?>
 
 js\main.js:
 Directory: js
@@ -727,7 +770,7 @@ document.addEventListener("DOMContentLoaded", function() {
             const tituloInput = document.getElementById("titulo");
             
             // trim() remove espaços em branco do início e fim
-            if (tituloInput.value.trim() === "") { [cite: 62]
+            if (tituloInput.value.trim() === "") { 
                 alert("O campo 'Título' é obrigatório.");
                 event.preventDefault(); // Impede o envio do formulário
                 tituloInput.focus(); // Foca no campo
@@ -738,16 +781,94 @@ document.addEventListener("DOMContentLoaded", function() {
     // --- 2. Confirmação de Exclusão --- [cite: 63]
     const linksExcluir = document.querySelectorAll(".btn-excluir");
     
-    linksExcluir.forEach(function(link) { [cite: 66]
+    linksExcluir.forEach(function(link) { 
         link.addEventListener("click", function(event) {
             // Pergunta ao usuário se ele tem certeza
             const confirmou = confirm("Tem certeza que deseja excluir este livro?");
             
-            if (!confirmou) { [cite: 64]
+            if (!confirmou) {
                 event.preventDefault(); // Cancela a ação (não segue o link) [cite: 65]
             }
         });
     });
 
 });
+
+
+library_db.sql:
+Directory: .
+
+-- phpMyAdmin SQL Dump
+-- version 5.2.1
+-- https://www.phpmyadmin.net/
+--
+-- Host: 127.0.0.1
+-- Tempo de geração: 04/11/2025 às 19:03
+-- Versão do servidor: 10.4.32-MariaDB
+-- Versão do PHP: 8.0.30
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+START TRANSACTION;
+SET time_zone = "+00:00";
+
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
+
+--
+-- Banco de dados: `library_db`
+--
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `livros`
+--
+
+CREATE TABLE `livros` (
+  `id` int(11) NOT NULL,
+  `titulo` varchar(255) NOT NULL,
+  `autor` varchar(255) DEFAULT NULL,
+  `genero` varchar(100) DEFAULT NULL,
+  `status` enum('Lido','Lendo','Quero Ler') DEFAULT 'Quero Ler',
+  `capa` varchar(255) DEFAULT NULL,
+  `data_cadastro` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `livros`
+--
+
+INSERT INTO `livros` (`id`, `titulo`, `autor`, `genero`, `status`, `capa`, `data_cadastro`) VALUES
+(3, 'Moby Dick', 'Herman Mellvile', 'Aventura | Ficção', 'Quero Ler', 'uploads/69090f84d0af0_FLEA  Red Hot Chili Peppers.jpg', '2025-11-03 19:54:09'),
+(5, 'O Pistoleiro', 'Stephen King', 'Drama | Terror | Neymar', 'Quero Ler', 'uploads/69090f8b50e49_21 provas que Neymar é o maior entusiasta de lanche que existe.jpg', '2025-11-03 20:03:03'),
+(6, 'Pai Milionário', '', '', 'Quero Ler', NULL, '2025-11-03 20:25:11');
+
+--
+-- Índices para tabelas despejadas
+--
+
+--
+-- Índices de tabela `livros`
+--
+ALTER TABLE `livros`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT para tabelas despejadas
+--
+
+--
+-- AUTO_INCREMENT de tabela `livros`
+--
+ALTER TABLE `livros`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
 

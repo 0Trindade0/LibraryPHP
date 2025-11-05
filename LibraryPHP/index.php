@@ -2,7 +2,7 @@
 include 'includes/header.php';
 include 'includes/conexao.php';
 
-// SQL para selecionar todos os livros (sem alteração) [cite: 92, 93]
+// SQL para selecionar todos os livros (sem alteração)
 $sql = "SELECT * FROM livros ORDER BY titulo";
 $stmt = $pdo->query($sql);
 ?>
